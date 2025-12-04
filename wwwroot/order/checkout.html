@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Data | DRIP CUBE</title>
+    <link rel="stylesheet" href="../css/checkout.css">
+</head>
+
+<body>
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+    </div>
+    <a href="/order/basket.html" class="nav-back">
+        < BACK</a>
+
+            <div class="form-container">
+                <h2>Delivery Protocol</h2>
+
+                <div class="input-group"><label>Full Name</label><input type="text" id="d-name"
+                        placeholder="Ivanov Ivan"></div>
+                <div class="input-group"><label>Phone Number</label><input type="text" id="d-phone"
+                        placeholder="+380..."></div>
+
+                <div style="display: flex; gap: 20px;">
+                    <div class="input-group" style="flex:1"><label>City</label><input type="text" id="d-city"
+                            placeholder="Kyiv"></div>
+                    <div class="input-group" style="flex:1"><label>Postal Code</label><input type="text" id="d-zip"
+                            placeholder="01001"></div>
+                </div>
+
+                <div class="input-group"><label>Street Address / Nova Poshta #</label><input type="text" id="d-address"
+                        placeholder="Khreshchatyk 1, Apt 10"></div>
+
+                <input type="hidden" id="d-promo">
+
+                <button onclick="confirmOrder()">[ CONFIRM & PAY ]</button>
+            </div>
+
+            <script>
+                const API_URL = 'http://localhost:5182/api/orders';
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user) window.location.href = '/account/profile.html';
+
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const promo = urlParams.get('promo');
+                if (promo) document.getElementById('d-promo').value = promo;
+
+                async function confirmOrder() {
+                    const btn = document.querySelector('button');
+
+
+                    const dto = {
+                        userId: user.id,
+                        promoCode: document.getElementById('d-promo').value || null,
+                        fullName: document.getElementById('d-name').value,
+                        phone: document.getElementById('d-phone').value,
+                        city: document.getElementById('d-city').value,
+                        postalCode: document.getElementById('d-zip').value,
+                        address: document.getElementById('d-address').value
+                    };
+
+                    if (!dto.fullName || !dto.phone || !dto.address) {
+                        alert("FILL ALL FIELDS");
+                        return;
+                    }
+
+                    btn.innerText = "PROCESSING...";
+                    btn.disabled = true;
+
+
+
+                    try {
+
+                        const response = await fetch(`${API_URL}/checkout`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(dto)
+                        });
+
+                        if (!response.ok) throw new Error("Failed to create order");
+
+                        const data = await response.json();
+
+
+                        btn.innerText = "REDIRECTING TO BANK...";
+
+
+                        const paymentRes = await fetch(`http://localhost:5182/api/payments/create-checkout-session/${data.orderId}`, {
+                            method: 'POST'
+                        });
+
+                        const paymentData = await paymentRes.json();
+
+
+                        window.location.href = paymentData.url;
+
+                    } catch (error) {
+                        console.error(error);
+                        alert("ERROR SENDING ORDER");
+                        btn.innerText = "[ CONFIRM & PAY ]";
+                        btn.disabled = false;
+                    }
+                }
+            </script>
+</body>
+
+</html>

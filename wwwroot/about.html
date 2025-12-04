@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Protocol | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            color: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .l1 {
+            left: 50%;
+        }
+
+        .line-h {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            top: 50%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            background: #000;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+            transition: 0.3s;
+            z-index: 100;
+            font-weight: bold;
+        }
+
+        .nav-back:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 60px;
+            margin: 0;
+            letter-spacing: -3px;
+            text-transform: uppercase;
+            mix-blend-mode: exclusion;
+        }
+
+        .typewriter {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #888;
+            margin-top: 40px;
+            white-space: pre-wrap;
+            text-align: left;
+            border-left: 2px solid #ff003c;
+            padding-left: 20px;
+            min-height: 100px;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background: #ff003c;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 30px;
+            font-weight: bold;
+            color: #fff;
+            display: block;
+        }
+
+        .stat-lbl {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .faq-section {
+            margin-top: 40px;
+            text-align: left;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .faq-section::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .faq-section::-webkit-scrollbar-thumb {
+            background: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-h"></div>
+    </div>
+
+    <a href="/index.html" class="nav-back">
+        < HOME</a>
+
+            <div class="content">
+                <h1>DRIP CUBE INC.</h1>
+
+                <div class="typewriter" id="text-area"></div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-val">2025</span>
+                        <span class="stat-lbl">ESTABLISHED</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">UA</span>
+                        <span class="stat-lbl">ORIGIN</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-val">∞</span>
+                        <span class="stat-lbl">POSSIBILITIES</span>
+                    </div>
+                </div>
+
+                <div class="faq-section">
+                    <h3 style="color: #ff003c; font-size: 14px; margin-bottom: 15px;">// F.A.Q. //</h3>
+
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #fff; font-size: 12px;">Q: SHIPPING TIME?</strong><br>
+                        <span style="font-size: 12px; color: #888;">A: Global delivery via drone uplink. Usually 3-5
+                            business cycles.</span>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #fff; font-size: 12px;">Q: RETURNS?</strong><br>
+                        <span style="font-size: 12px; color: #888;">A: Only if the digital soul of the item is
+                            corrupted. Contact Support.</span>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color: #fff; font-size: 12px;">Q: PAYMENT?</strong><br>
+                        <span style="font-size: 12px; color: #888;">A: Credits, Crypto, or Barter. (Currently only
+                            Credits).</span>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const text = `// SYSTEM MANIFEST v.1.0
+We are not just a store. We are an algorithm for style.
+Drip Cube creates a connection between digital chaos and physical matter.
+
+Our mission is to equip the modern user for the concrete jungle.
+Technology. Utility. Aesthetics.
+
+Welcome to the future of retail.`;
+
+                const area = document.getElementById('text-area');
+                let i = 0;
+
+                function type() {
+                    if (i < text.length) {
+                        area.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, 30);
+                    } else {
+                        area.innerHTML += '<span class="cursor"></span>';
+                    }
+                }
+                setTimeout(type, 1000);
+            </script>
+</body>
+
+</html>

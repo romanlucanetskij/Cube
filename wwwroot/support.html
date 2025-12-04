@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Uplink | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            background: #0a0a0a;
+            color: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .l1 {
+            left: 20%;
+        }
+
+        .l2 {
+            left: 80%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            background: #000;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+            transition: 0.3s;
+            z-index: 100;
+        }
+
+        .nav-back:hover {
+            background: #fff;
+            color: #000;
+        }
+
+
+        .chat-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 80vh;
+            border: 1px solid #333;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-online {
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+
+        .chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+
+        .msg {
+            max-width: 70%;
+            padding: 10px 15px;
+            font-size: 14px;
+            line-height: 1.4;
+            border: 1px solid #333;
+        }
+
+        .msg-user {
+            align-self: flex-end;
+            text-align: right;
+            border-color: #fff;
+            background: #111;
+        }
+
+        .msg-manager {
+            align-self: flex-start;
+            border-color: #ff003c;
+            color: #ff003c;
+            background: #1a0505;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            opacity: 0.5;
+            margin-top: 5px;
+        }
+
+
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 15px;
+            font-family: 'JetBrains Mono';
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #fff;
+        }
+
+        button {
+            padding: 0 30px;
+            background: #fff;
+            color: #000;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'JetBrains Mono';
+        }
+
+        button:hover {
+            background: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-header">
+        <div><span class="status-dot" id="status-dot"></span> SUPPORT UPLINK</div>
+
+        <button onclick="reportManager()"
+            style="background:red; color:white; padding:2px 5px; font-size:10px; border:none;">
+            REPORT AGENT
+        </button>
+    </div>
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+    </div>
+    <a href="/account/profile.html" class="nav-back">
+        < EXIT</a>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div><span class="status-dot" id="status-dot"></span> SUPPORT UPLINK</div>
+                    <div style="font-size: 10px; color: #666;" id="session-id">CONNECTING...</div>
+                </div>
+
+                <div class="chat-history" id="history">
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="msg-input" placeholder="Type your issue...">
+                    <button onclick="sendMessage()">SEND</button>
+                </div>
+            </div>
+
+            <script>
+
+                const API_URL = 'http://localhost:5182/api/chats';
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user) window.location.href = '/account/profile.html';
+
+                let currentSessionId = null;
+                const historyDiv = document.getElementById('history');
+                const statusDot = document.getElementById('status-dot');
+
+
+                async function initChat() {
+                    try {
+
+                        const res = await fetch(`${API_URL}/user-active-session/${user.id}`);
+
+                        if (res.status === 200) {
+                            const data = await res.json();
+                            currentSessionId = data.sessionId;
+                            document.getElementById('session-id').innerText = "SESSION: " + currentSessionId.substring(0, 8);
+                            statusDot.classList.add('status-online');
+                            loadMessages();
+                        } else {
+                            document.getElementById('session-id').innerText = "STATUS: IDLE";
+                            appendSystemMessage("Welcome. Describe your problem to start a secure session.");
+                        }
+
+
+                        setInterval(loadMessages, 3000);
+
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+
+
+                async function loadMessages() {
+                    if (!currentSessionId) return;
+
+                    try {
+                        const res = await fetch(`${API_URL}/history/${currentSessionId}`);
+                        if (!res.ok) return;
+
+                        const messages = await res.json();
+                        renderMessages(messages);
+
+                    } catch (e) { console.error(e); }
+                }
+
+
+                function renderMessages(messages) {
+                    historyDiv.innerHTML = '';
+
+                    messages.forEach(m => {
+                        const div = document.createElement('div');
+
+                        const typeClass = m.sender === 'User' ? 'msg-user' : 'msg-manager';
+                        div.className = `msg ${typeClass}`;
+
+
+                        const time = new Date(m.sentAt).toLocaleTimeString();
+
+                        div.innerHTML = `
+                    <div>${m.text}</div>
+                    <div class="msg-time">${m.sender} // ${time}</div>
+                `;
+                        historyDiv.appendChild(div);
+                    });
+                }
+
+
+                async function sendMessage() {
+                    const input = document.getElementById('msg-input');
+                    const text = input.value;
+                    if (!text) return;
+
+
+                    appendTempMessage(text);
+                    input.value = '';
+
+                    try {
+                        const res = await fetch(`${API_URL}/send-user`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                senderId: user.id,
+                                text: text
+                            })
+                        });
+
+                        if (!res.ok) throw new Error("Send failed");
+
+                        const data = await res.json();
+
+
+                        if (!currentSessionId) {
+                            currentSessionId = data.sessionId;
+                            document.getElementById('session-id').innerText = "SESSION: " + currentSessionId.substring(0, 8);
+                            statusDot.classList.add('status-online');
+                        }
+
+
+                        loadMessages();
+
+                    } catch (e) {
+                        alert("Error sending message");
+                    }
+                }
+
+                function appendSystemMessage(text) {
+                    const div = document.createElement('div');
+                    div.className = 'msg';
+                    div.style.borderColor = '#666';
+                    div.style.color = '#666';
+                    div.style.alignSelf = 'center';
+                    div.innerText = `// SYSTEM: ${text}`;
+                    historyDiv.appendChild(div);
+                }
+
+                function appendTempMessage(text) {
+                    const div = document.createElement('div');
+                    div.className = 'msg msg-user';
+                    div.style.opacity = '0.5';
+                    div.innerHTML = `<div>${text}</div><div class="msg-time">Sending...</div>`;
+                    historyDiv.appendChild(div);
+                    historyDiv.scrollTop = historyDiv.scrollHeight;
+                }
+
+                initChat();
+                async function reportManager() {
+                    const reason = prompt("REPORTING AGENT.\nDESCRIBE MISCONDUCT:");
+                    if (!reason) return;
+
+                    try {
+                        await fetch('http://localhost:5182/api/reports', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                reporterId: user.id,
+                                targetType: "MANAGER",
+                                targetId: `Chat Session: ${currentSessionId}`,
+                                reason: reason
+                            })
+                        });
+                        alert("COMPLAINT REGISTERED.");
+                    } catch (e) { alert("ERROR"); }
+                }
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main | DRIP CUBE</title>
+    <style>
+        /* --- ШРИФТЫ --- */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* --- ПЕРЕМЕННЫЕ --- */
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #1a1a1a;
+            --line-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        body.dark-mode {
+            --bg-color: #0a0a0a;
+            --text-color: #f0f0f0;
+            --line-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- СЕТКА --- */
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-h,
+        .line-v {
+            position: absolute;
+            background-color: var(--line-color);
+            transition: background-color 0.5s ease;
+        }
+
+        .line-h {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+        }
+
+        .line-v {
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 1px;
+        }
+
+        /* --- ПРИЦЕЛЫ (Кнопки хаоса) --- */
+        .crosshair {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            pointer-events: auto;
+            z-index: 20;
+            transition: transform 0.2s ease;
+        }
+
+        .crosshair:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: var(--text-color);
+            transition: background-color 0.5s ease;
+        }
+
+        .crosshair::before {
+            width: 20px;
+            height: 1px;
+        }
+
+        .crosshair::after {
+            width: 1px;
+            height: 20px;
+        }
+
+        .cross-left {
+            left: 10%;
+        }
+
+        .cross-right {
+            right: 10%;
+        }
+
+        /* --- НАВИГАЦИЯ (УГЛЫ) --- */
+        .nav-corner {
+            position: absolute;
+            padding: 20px 40px;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            z-index: 10;
+            letter-spacing: 1px;
+            text-decoration: none;
+            color: inherit;
+            font-weight: 700;
+        }
+
+        .top-left {
+            top: 0;
+            left: 0;
+        }
+
+        .top-right {
+            top: 0;
+            right: 0;
+        }
+
+        .bottom-left {
+            bottom: 0;
+            left: 0;
+        }
+
+        .bottom-right {
+            bottom: 0;
+            right: 0;
+        }
+
+        /* --- ЦЕНТРАЛЬНЫЙ ТЕКСТ --- */
+        .center-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            width: 90%;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            pointer-events: none;
+        }
+
+        .big-text {
+            font-size: 8vw;
+            font-weight: 700;
+            text-transform: uppercase;
+            line-height: 1;
+            display: flex;
+            gap: 5px;
+            pointer-events: auto;
+            cursor: help;
+        }
+
+        .char {
+            display: inline-block;
+            transition: filter 0.3s ease, transform 0.3s ease, opacity 0.1s ease;
+            filter: blur(14px);
+            opacity: 0.3;
+            transform: scale(0.9);
+            width: 0.6em;
+            text-align: center;
+        }
+
+        .char:hover {
+            filter: blur(0px);
+            opacity: 1;
+            transform: scale(1.2);
+            color: #ff003c;
+            /* Красный акцент */
+        }
+
+        /* БАРКОД ВНИЗУ */
+        .barcode {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            letter-spacing: 5px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-h"></div>
+        <div class="line-v"></div>
+        <div class="crosshair cross-left" id="btn-stop" title="STOP CHAOS"></div>
+        <div class="crosshair cross-right" id="btn-start" title="START CHAOS"></div>
+    </div>
+
+    <a href="/account/profile.html" class="nav-corner top-left" data-text="PROFILE" data-theme="dark">[ Profile ]</a>
+    <a href="/shop/catalog.html" class="nav-corner top-right" data-text="CATALOG" data-theme="light">[ Catalog ]</a>
+    <a href="/order/basket.html" class="nav-corner bottom-left" data-text="BASKET" data-theme="dark">[ Basket ]</a>
+    <a href="/about.html" class="nav-corner bottom-right" data-text="INFO" data-theme="light">[ About ]</a>
+
+    <div class="center-container">
+        <div class="big-text" id="main-text"></div>
+    </div>
+
+    <div class="barcode">DRIP CUBE SYSTEM v.FINAL</div>
+
+    <script>
+        const textContainer = document.getElementById('main-text');
+        const navItems = document.querySelectorAll('.nav-corner');
+        const btnStart = document.getElementById('btn-start');
+        const btnStop = document.getElementById('btn-stop');
+        const body = document.body;
+
+        // Символы для "Матрицы"
+        const chaosChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*<>[]";
+        let chaosInterval = null;
+        let isChaosRunning = false;
+
+        // Генерация букв
+        function setCenterText(text) {
+            textContainer.innerHTML = '';
+            text.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.innerHTML = char === ' ' ? '&nbsp;' : char;
+                span.classList.add('char');
+                textContainer.appendChild(span);
+            });
+        }
+
+        // Старт
+        setCenterText('SYSTEM');
+
+        // --- НАВЕДЕНИЕ НА УГЛЫ ---
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                stopChaos(); // Останавливаем хаос, если навели на меню
+
+                const text = item.getAttribute('data-text');
+                const theme = item.getAttribute('data-theme');
+
+                setCenterText(text);
+
+                if (theme === 'dark') {
+                    body.classList.add('dark-mode');
+                } else {
+                    body.classList.remove('dark-mode');
+                }
+            });
+        });
+
+        // --- ХАОС РЕЖИМ (ПРАВЫЙ КРЕСТИК) ---
+        btnStart.addEventListener('click', () => {
+            if (isChaosRunning) return;
+            isChaosRunning = true;
+
+            setCenterText('######'); // Болванка
+
+            chaosInterval = setInterval(() => {
+                const spans = document.querySelectorAll('.char');
+                spans.forEach(span => {
+                    // Если мышь НЕ на букве - меняем её
+                    if (!span.matches(':hover')) {
+                        const randomChar = chaosChars[Math.floor(Math.random() * chaosChars.length)];
+                        span.textContent = randomChar;
+                    }
+                });
+            }, 50);
+        });
+
+        // --- СТОП (ЛЕВЫЙ КРЕСТИК) ---
+        btnStop.addEventListener('click', () => {
+            stopChaos();
+        });
+
+        function stopChaos() {
+            if (chaosInterval) {
+                clearInterval(chaosInterval);
+                chaosInterval = null;
+            }
+            isChaosRunning = false;
+        }
+    </script>
+</body>
+
+</html>

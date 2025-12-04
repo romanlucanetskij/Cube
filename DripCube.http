@@ -1,0 +1,6 @@
+@DripCube_HostAddress = http://localhost:5182
+
+GET {{DripCube_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

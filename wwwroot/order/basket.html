@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .l1 {
+            left: 20%;
+        }
+
+        .l2 {
+            left: 40%;
+        }
+
+        .l3 {
+            left: 60%;
+        }
+
+        .l4 {
+            left: 80%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            z-index: 100;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+            background: #000;
+            transition: 0.3s;
+        }
+
+        .nav-back:hover {
+            background: #fff;
+            color: #000;
+        }
+
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 100px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            border: 1px solid #333;
+            background: rgba(20, 20, 20, 0.8);
+            margin-bottom: 15px;
+            padding: 15px;
+            transition: 0.3s;
+        }
+
+        .cart-item:hover {
+            border-color: #fff;
+        }
+
+        .item-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 20px;
+            background: #333;
+        }
+
+        .item-info {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .item-meta {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .item-price {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 30px;
+        }
+
+        .btn-remove {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-family: 'JetBrains Mono';
+        }
+
+        .btn-remove:hover {
+            border-color: #ff003c;
+            color: #ff003c;
+        }
+
+
+        .total-block {
+            margin-top: 40px;
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            text-align: right;
+            display: none;
+
+        }
+
+        .total-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .total-sum {
+            font-size: 40px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .checkout-btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'JetBrains Mono';
+            transition: 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background: #0f0;
+        }
+
+        #empty-msg {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+        <div class="line-v l3"></div>
+        <div class="line-v l4"></div>
+    </div>
+
+    <a href="/index.html" class="nav-back">
+        < HOME</a>
+
+            <div class="container">
+                <h1>System Inventory [CART]</h1>
+
+                <div id="cart-list">
+                    <div style="text-align:center; color:#666;">LOADING DATA...</div>
+                </div>
+
+                <div id="empty-msg">
+                    // STORAGE EMPTY //<br>
+                    <a href="/shop/catalog.html" style="color:#fff; margin-top:10px; display:inline-block;">GO TO
+                        CATALOG</a>
+                </div>
+
+                <div class="total-block" id="total-block">
+
+                    <div style="margin-bottom: 20px; text-align: right;">
+                        <input type="text" id="promo-input" placeholder="ENTER SECRET CODE"
+                            style="background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; text-align: right; width: 200px; font-family: 'JetBrains Mono'; outline: none;">
+                    </div>
+
+                    <div class="total-label">TOTAL AMOUNT</div>
+                    <div class="total-sum" id="total-sum">$0.00</div>
+                    <button class="checkout-btn" onclick="goToCheckout()">[ INITIATE PURCHASE ]</button>
+                </div>
+            </div>
+
+            <script>
+
+                const CART_API = 'http://localhost:5182/api/carts';
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                const list = document.getElementById('cart-list');
+                const emptyMsg = document.getElementById('empty-msg');
+                const totalBlock = document.getElementById('total-block');
+                const totalSum = document.getElementById('total-sum');
+
+
+                if (!user) {
+                    window.location.href = '/account/profile.html';
+                }
+
+
+                async function loadCart() {
+                    try {
+                        const response = await fetch(`${CART_API}/${user.id}`);
+
+                        if (!response.ok) throw new Error('Err');
+
+                        const items = await response.json();
+                        renderCart(items);
+
+                    } catch (error) {
+                        console.error(error);
+                        list.innerHTML = '<div style="color:red; text-align:center;">CONNECTION ERROR</div>';
+                    }
+                }
+
+
+                function renderCart(items) {
+                    list.innerHTML = '';
+                    let total = 0;
+
+                    if (items.length === 0) {
+                        emptyMsg.style.display = 'block';
+                        totalBlock.style.display = 'none';
+                        return;
+                    }
+
+                    emptyMsg.style.display = 'none';
+                    totalBlock.style.display = 'block';
+
+                    items.forEach(item => {
+                        total += item.total;
+
+                        const div = document.createElement('div');
+                        div.className = 'cart-item';
+                        const img = item.imageUrl || 'https://via.placeholder.com/100';
+
+                        div.innerHTML = `
+                    <img src="${img}" class="item-img">
+                    <div class="item-info">
+                        <div class="item-name">${item.productName}</div>
+                        <div class="item-meta">QTY: ${item.quantity} // UNIT: $${item.price}</div>
+                    </div>
+                    <div class="item-price">$${item.total}</div>
+                    <button class="btn-remove" onclick="removeItem(${item.id})">X</button>
+                `;
+                        list.appendChild(div);
+                    });
+
+                    totalSum.innerText = `$${total.toFixed(2)}`;
+                }
+
+
+                async function removeItem(itemId) {
+                    if (!confirm("DELETE ITEM?")) return;
+                    await fetch(`${CART_API}/${itemId}`, { method: 'DELETE' });
+                    loadCart();
+                }
+
+
+                function goToCheckout() {
+                    const promoCode = document.getElementById('promo-input').value.trim();
+
+                    let targetUrl = 'checkout.html';
+                    if (promoCode) {
+                        targetUrl += `?promo=${encodeURIComponent(promoCode)}`;
+                    }
+
+                    window.location.href = targetUrl;
+                }
+
+
+                loadCart();
+            </script>
+</body>
+
+</html>

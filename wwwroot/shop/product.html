@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Protocol | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #f0f0f0;
+            color: #1a1a1a;
+            overflow: hidden;
+        }
+
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .l1 {
+            left: 33%;
+        }
+
+        .l2 {
+            left: 66%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+            z-index: 100;
+            border: 1px solid #000;
+            padding: 10px 20px;
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .nav-back:hover {
+            background: #000;
+            color: #fff;
+        }
+
+
+        .product-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            height: 100vh;
+        }
+
+
+        .image-section {
+            flex: 2;
+            position: relative;
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background: #ddd;
+        }
+
+        .main-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            transition: 1s ease;
+        }
+
+        .image-section:hover .main-img {
+            filter: grayscale(0%);
+            transform: scale(1.02);
+        }
+
+
+        .info-section {
+            flex: 1;
+            padding: 80px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #fff;
+        }
+
+        h1 {
+            font-size: 40px;
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .category {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 30px;
+        }
+
+        .price {
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #000;
+        }
+
+        .desc {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 30px;
+            border-left: 2px solid #000;
+            padding-left: 20px;
+            padding-left: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+
+        .desc::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .desc::-webkit-scrollbar-track {
+            background: #eee;
+        }
+
+        .desc::-webkit-scrollbar-thumb {
+            background: #000;
+        }
+
+
+        .buy-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 20px;
+            font-family: 'JetBrains Mono';
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .buy-btn:hover {
+            background: #ff003c;
+        }
+
+        .buy-btn:active {
+            transform: scale(0.98);
+        }
+
+
+        #loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+    </div>
+
+    <a href="catalog.html" class="nav-back">
+        < CATALOG</a>
+
+            <div id="loader">LOADING DATA...</div>
+
+            <div class="product-container" id="content" style="display:none;">
+
+                <div class="image-section">
+                    <img id="p-img" src="" class="main-img">
+                </div>
+
+                <div class="info-section">
+                    <div class="category" id="p-cat">CATEGORY</div>
+                    <h1 id="p-name">PRODUCT NAME</h1>
+                    <div class="price" id="p-price">$0.00</div>
+                    <div id="stock-status" style="font-size:12px; margin-bottom:20px; color:#0f0;">IN STOCK</div>
+
+                    <div id="admin-controls" style="margin-bottom: 20px; display: none;">
+                        <button onclick="editProduct()"
+                            style="background:#000; color:white; border:1px solid #fff; padding:5px; margin-right: 10px;">[
+                            EDIT ]</button>
+                        <button onclick="deleteProduct()"
+                            style="background:red; color:white; border:none; padding:5px;">[ DELETE ]</button>
+                    </div>
+
+                    <p class="desc" id="p-desc">
+                        Description text...
+                    </p>
+                    <button class="buy-btn" onclick="addToCart()">
+                        <span>ADD TO CART</span> <span>[ + ]</span>
+                    </button>
+
+                    <div style="text-align: right; margin-top: 10px;">
+                        <span onclick="reportProduct()"
+                            style="color: #666; font-size: 10px; cursor: pointer; border-bottom: 1px dashed #666;">
+                            [ ! ] REPORT ERROR
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <script>
+
+                const API_URL = 'http://localhost:5182/api/products';
+
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+
+                async function loadProduct() {
+                    if (!productId) {
+                        alert("Ошибка: ID товара не указан");
+                        return;
+                    }
+
+                    try {
+
+                        const user = JSON.parse(localStorage.getItem('drip_user'));
+                        if (user && (user.role === 'Admin' || user.role === 'Manager')) {
+                            document.getElementById('admin-controls').style.display = 'block';
+                        }
+
+                        const response = await fetch(`${API_URL}/${productId}`);
+
+                        if (!response.ok) throw new Error('Товар не найден');
+
+                        const product = await response.json();
+
+
+                        const stockLabel = document.getElementById('stock-status');
+                        const buyBtn = document.querySelector('.buy-btn');
+
+                        if (product.stockQuantity > 0) {
+                            stockLabel.innerText = `// IN STOCK: ${product.stockQuantity} UNITS //`;
+                            stockLabel.style.color = "#0f0";
+                            buyBtn.disabled = false;
+                            buyBtn.style.opacity = "1";
+                            buyBtn.innerHTML = `<span>ADD TO CART</span> <span>[ + ]</span>`;
+                        } else {
+                            stockLabel.innerText = `// SOLD OUT //`;
+                            stockLabel.style.color = "red";
+                            buyBtn.disabled = true;
+                            buyBtn.style.opacity = "0.5";
+                            buyBtn.innerHTML = `<span>UNAVAILABLE</span> <span>[ X ]</span>`;
+
+                            buyBtn.onclick = null;
+                        }
+
+
+                        document.getElementById('p-img').src = product.imageUrl || 'https://via.placeholder.com/600';
+                        document.getElementById('p-name').innerText = product.name;
+                        document.getElementById('p-cat').innerText = `// ${product.category} //`;
+                        document.getElementById('p-price').innerText = `$${product.price}`;
+                        document.getElementById('p-desc').innerText = product.description;
+
+
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('content').style.display = 'flex';
+
+                    } catch (error) {
+                        document.getElementById('loader').innerText = "ERROR 404: OBJECT NOT FOUND";
+                        document.getElementById('loader').style.color = "red";
+                    }
+                }
+
+
+
+                async function addToCart() {
+                    const btn = document.querySelector('.buy-btn');
+
+
+                    const user = JSON.parse(localStorage.getItem('drip_user'));
+
+                    if (!user) {
+                        if (confirm("SYSTEM ERROR: AUTH REQUIRED. LOGIN NOW?")) {
+                            window.location.href = '/account/profile.html';
+                        }
+                        return;
+                    }
+
+
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = "<span>PROCESSING...</span> <span>[ ... ]</span>";
+                    btn.disabled = true;
+
+                    try {
+                        // 3. Отправляем запрос на сервер
+                        // api/carts/add
+                        const response = await fetch('http://localhost:5182/api/carts/add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                userId: user.id,
+                                productId: parseInt(productId)
+                            })
+                        });
+
+                        if (!response.ok) throw new Error('Failed to add');
+
+
+                        btn.innerHTML = "<span>ADDED TO SYSTEM</span> <span>[ OK ]</span>";
+                        btn.style.background = "#0f0";
+                        btn.style.color = "#000";
+
+
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.style.background = "#000";
+                            btn.style.color = "#fff";
+                            btn.disabled = false;
+                        }, 2000);
+
+                    } catch (error) {
+                        console.error(error);
+                        btn.innerHTML = "<span>ERROR</span> <span>[ X ]</span>";
+                        btn.style.background = "red";
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.style.background = "#000";
+                            btn.disabled = false;
+                        }, 2000);
+                    }
+                }
+
+                loadProduct();
+
+                async function deleteProduct() {
+                    if (!confirm("CONFIRM DELETE? THIS CANNOT BE UNDONE.")) return;
+
+                    try {
+                        await fetch(`${API_URL}/${productId}`, { method: 'DELETE' });
+                        alert("PRODUCT DELETED");
+                        window.location.href = 'catalog.html';
+                    } catch (e) { alert("Error deleting"); }
+                }
+
+                function editProduct() {
+                    window.location.href = `edit-product.html?id=${productId}`;
+                }
+                async function reportProduct() {
+                    const reason = prompt("REPORT PROTOCOL.\nDESCRIBE ERROR:");
+                    if (!reason) return;
+
+                    const user = JSON.parse(localStorage.getItem('drip_user'));
+                    if (!user) { alert("LOGIN REQUIRED"); return; }
+
+                    try {
+                        await fetch('http://localhost:5182/api/reports', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                reporterId: user.id,
+                                targetType: "PRODUCT",
+                                targetId: document.getElementById('p-name').innerText,
+                                reason: reason
+                            })
+                        });
+                        alert("REPORT SENT TO ADMIN.");
+                    } catch (e) { alert("ERROR"); }
+                }
+            </script>
+</body>
+
+</html>

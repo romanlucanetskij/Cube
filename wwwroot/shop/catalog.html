@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalog | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #f0f0f0;
+            color: #1a1a1a;
+            overflow-x: hidden;
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .l1 {
+            left: 20%;
+        }
+
+        .l2 {
+            left: 40%;
+        }
+
+        .l3 {
+            left: 60%;
+        }
+
+        .l4 {
+            left: 80%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #000;
+            border: 1px solid #000;
+            padding: 10px 20px;
+            background: #fff;
+            transition: 0.3s;
+            z-index: 100;
+            font-weight: bold;
+        }
+
+        .nav-back:hover {
+            background: #000;
+            color: #fff;
+        }
+
+
+        .filters-bar {
+            position: relative;
+            z-index: 10;
+            margin: 80px 5% 20px 5%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background: #fff;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .f-label {
+            font-size: 10px;
+            color: #999;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            font-family: 'JetBrains Mono';
+            outline: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #000;
+        }
+
+        button.search-btn {
+            height: 40px;
+            padding: 0 20px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: auto;
+        }
+
+        button.search-btn:hover {
+            background: #ff003c;
+        }
+
+
+        .catalog-container {
+            position: relative;
+            z-index: 10;
+            padding: 0 5% 100px 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            border-color: #000;
+            box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .img-wrapper {
+            width: 100%;
+            height: 250px;
+            background: #eee;
+            overflow: hidden;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            transition: 0.5s;
+        }
+
+        .product-card:hover .product-img {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .info {
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .p-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .p-cat {
+            font-size: 10px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .p-price {
+            font-weight: bold;
+        }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: #000;
+            color: #fff;
+            border-left: 4px solid #0f0;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            min-width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.error {
+            border-left-color: #ff003c;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+        <div class="line-v l3"></div>
+        <div class="line-v l4"></div>
+    </div>
+    <a href="/index.html" class="nav-back">
+        < BACK</a>
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label class="f-label" for="f-search">Search Unit</label>
+                    <input type="text" id="f-search" placeholder="Type name...">
+                </div>
+
+                <div class="filter-group">
+                    <label class="f-label" for="f-cat">Category</label>
+                    <select id="f-cat">
+                        <option value="All">ALL SECTORS</option>
+                        <option value="Outerwear">Outerwear</option>
+                        <option value="Pants">Pants</option>
+                        <option value="Shoes">Shoes</option>
+                        <option value="Accessories">Accessories</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="f-label" for="f-sort">Sort By</label>
+                    <select id="f-sort">
+                        <option value="newest">Newest First</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                    </select>
+                </div>
+
+                <button class="search-btn" onclick="loadProducts()">APPLY FILTERS</button>
+            </div>
+
+            <div id="loading">SYSTEM LOADING...</div>
+            <div class="catalog-container" id="product-grid"></div>
+
+            <div id="toast-container"></div>
+
+            <script>
+
+                const API_URL = 'http://localhost:5182/api/products';
+
+                const grid = document.getElementById('product-grid');
+                const loading = document.getElementById('loading');
+
+
+                async function loadProducts() {
+
+                    const search = document.getElementById('f-search').value;
+                    const category = document.getElementById('f-cat').value;
+                    const sort = document.getElementById('f-sort').value;
+
+
+                    const params = new URLSearchParams();
+                    if (search) params.append('search', search);
+                    if (category && category !== 'All') params.append('category', category);
+                    if (sort) params.append('sort', sort);
+
+                    loading.style.display = 'block';
+                    grid.innerHTML = '';
+
+                    try {
+                        const response = await fetch(`${API_URL}?${params.toString()}`);
+                        if (!response.ok) throw new Error('Network Error');
+
+                        const products = await response.json();
+                        loading.style.display = 'none';
+
+                        if (products.length === 0) {
+                            grid.innerHTML = '<div style="grid-column: span 3; text-align:center;">NO UNITS FOUND</div>';
+                            showToast("Database returned 0 results", "error");
+                            return;
+                        }
+
+
+                        products.forEach(product => {
+                            const card = document.createElement('div');
+                            card.className = 'product-card';
+                            card.onclick = () => window.location.href = `product.html?id=${product.id}`;
+
+                            const imgUrl = product.imageUrl || 'https://via.placeholder.com/300';
+
+                            card.innerHTML = `
+                        <div class="img-wrapper">
+                            <img src="${imgUrl}" class="product-img">
+                        </div>
+                        <div class="info">
+                            <div>
+                                <div class="p-name">${product.name}</div>
+                                <div class="p-cat">[${product.category}]</div>
+                            </div>
+                            <div class="p-price">$${product.price}</div>
+                        </div>
+                    `;
+                            grid.appendChild(card);
+                        });
+
+                        showToast(`Loaded ${products.length} items`, "success");
+
+                    } catch (error) {
+                        loading.innerText = 'ERROR';
+                        showToast("Connection Failed", "error");
+                    }
+                }
+
+
+                function showToast(message, type = "success") {
+                    const container = document.getElementById('toast-container');
+
+                    const toast = document.createElement('div');
+                    toast.className = `toast ${type}`;
+                    toast.innerHTML = `
+                <div style="font-weight:bold; margin-bottom:5px;">SYSTEM MESSAGE:</div>
+                <div>${message}</div>
+            `;
+
+                    container.appendChild(toast);
+
+
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        setTimeout(() => toast.remove(), 500);
+                    }, 3000);
+                }
+
+
+                loadProducts();
+            </script>
+</body>
+
+</html>

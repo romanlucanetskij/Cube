@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Unit | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            background: #0a0a0a;
+            color: #f0f0f0;
+            overflow: hidden;
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .l1 {
+            left: 25%;
+        }
+
+        .l2 {
+            left: 50%;
+        }
+
+        .l3 {
+            left: 75%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            background: #000;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+            transition: 0.3s;
+            z-index: 100;
+        }
+
+        .nav-back:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .form-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #333;
+            padding: 40px;
+            z-index: 10;
+        }
+
+        h2 {
+            color: #ff003c;
+            margin-top: 0;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            font-family: 'JetBrains Mono';
+            padding: 10px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        input[type="file"] {
+            border: 1px dashed #666;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #ff003c;
+            color: #000;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+        <div class="line-v l3"></div>
+    </div>
+    <a href="/account/profile.html" class="nav-back">
+        < CANCEL</a>
+
+            <div class="form-container">
+                <h2>Upload New Unit</h2>
+
+                <div class="input-group">
+                    <label for="p-name">Name</label>
+                    <input type="text" id="p-name">
+                </div>
+
+                <div style="display: flex; gap: 20px;">
+                    <div class="input-group" style="flex:1">
+                        <label for="p-cat">Category</label>
+                        <select id="p-cat">
+                            <option value="Outerwear">Outerwear</option>
+                            <option value="Pants">Pants</option>
+                            <option value="Shoes">Shoes</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="flex:1">
+                        <label for="p-price">Price</label>
+                        <input type="number" id="p-price">
+                    </div>
+                    <div class="input-group">
+                        <label for="p-stock">Stock Quantity (Pcs)</label>
+                        <input type="number" id="p-stock" value="10">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="p-file">Image File (Upload from PC)</label>
+                    <input type="file" id="p-file" accept="image/*">
+                </div>
+
+                <div class="input-group">
+                    <label for="p-desc">Description</label>
+                    <textarea id="p-desc"></textarea>
+                </div>
+
+                <button onclick="uploadProduct()">[ UPLOAD & SAVE ]</button>
+                <div id="status" style="text-align:center; margin-top:10px; font-size:12px;"></div>
+            </div>
+
+            <script>
+
+                const API_URL = 'http://localhost:5182/api/products';
+
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user || (user.role !== 'Admin' && user.role !== 'Manager')) {
+                    window.location.href = '/index.html';
+                }
+
+                async function uploadProduct() {
+                    const btn = document.querySelector('button');
+                    const status = document.getElementById('status');
+
+
+                    const formData = new FormData();
+
+                    formData.append('Name', document.getElementById('p-name').value);
+                    formData.append('Category', document.getElementById('p-cat').value);
+                    formData.append('Price', document.getElementById('p-price').value);
+                    formData.append('Description', document.getElementById('p-desc').value);
+                    formData.append('StockQuantity', document.getElementById('p-stock').value);
+
+
+                    const fileInput = document.getElementById('p-file');
+                    if (fileInput.files.length > 0) {
+                        formData.append('ImageFile', fileInput.files[0]);
+                    }
+
+                    btn.innerText = "UPLOADING FILE...";
+                    btn.disabled = true;
+
+                    try {
+
+                        const response = await fetch(API_URL, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) throw new Error('Upload Failed');
+
+                        const newProduct = await response.json();
+
+                        status.innerText = "UPLOAD COMPLETE. REDIRECTING...";
+                        status.style.color = "#0f0";
+
+                        setTimeout(() => {
+                            window.location.href = `product.html?id=${newProduct.id}`;
+                        }, 1000);
+
+                    } catch (error) {
+                        console.error(error);
+                        status.innerText = "ERROR: " + error.message;
+                        status.style.color = "red";
+                        btn.disabled = false;
+                        btn.innerText = "[ UPLOAD & SAVE ]";
+                    }
+                }
+            </script>
+</body>
+
+</html>

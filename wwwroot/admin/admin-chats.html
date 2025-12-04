@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comms Control | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            background: #0a0a0a;
+            color: #ccc;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 80px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff003c;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            font-size: 12px;
+        }
+
+        th {
+            text-align: left;
+            color: #0f0;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #222;
+            color: #fff;
+        }
+
+        .btn-kill {
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .btn-kill:hover {
+            background: #fff;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="/account/profile.html" class="nav-back">
+        < PROFILE</a>
+
+            <div class="container">
+                <h1>GLOBAL COMMS CONTROL</h1>
+                <div style="font-size:12px; color:#666;">ACTIVE SESSIONS MONITORING</div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>USER</th>
+                            <th>ASSIGNED TO</th>
+                            <th>LAST MSG</th>
+                            <th>IDLE TIME</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chat-list"></tbody>
+                </table>
+            </div>
+
+            <script>
+                const API_URL = 'http://localhost:5182/api/chats';
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user || user.role !== 'Admin') window.location.href = '/account/profile.html';
+
+                async function loadChats() {
+                    try {
+                        const res = await fetch(`${API_URL}/admin-all`);
+                        const chats = await res.json();
+
+                        const tbody = document.getElementById('chat-list');
+                        tbody.innerHTML = '';
+
+                        chats.forEach(c => {
+                            const tr = document.createElement('tr');
+
+
+                            const lastTime = new Date(c.lastActivity);
+                            const now = new Date();
+                            const diffMins = Math.floor((now - lastTime) / 60000);
+
+                            let timeColor = "#666";
+                            if (diffMins > 10) timeColor = "orange";
+                            if (diffMins > 14) timeColor = "red";
+
+                            tr.innerHTML = `
+                        <td>${c.userName}<br><span style="color:#666">${c.lastMessage}</span></td>
+                        <td>${c.managerName}</td>
+                        <td>${lastTime.toLocaleTimeString()}</td>
+                        <td style="color:${timeColor}">${diffMins} min ago</td>
+                        <td>
+                            <button class="btn-kill" onclick="killChat('${c.sessionId}')">
+                                KILL SIGNAL
+                            </button>
+                        </td>
+                    `;
+                            tbody.appendChild(tr);
+                        });
+
+                    } catch (e) { console.error(e); }
+                }
+
+                async function killChat(id) {
+                    if (!confirm("TERMINATE SESSION?")) return;
+                    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    loadChats();
+                }
+
+                loadChats();
+                setInterval(loadChats, 5000);
+            </script>
+</body>
+
+</html>

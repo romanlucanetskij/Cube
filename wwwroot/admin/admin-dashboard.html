@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            background: #050505;
+            color: #ccc;
+            overflow-x: hidden;
+        }
+
+        .grid-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 204, 0, 0.05);
+        }
+
+
+        .l1 {
+            left: 25%;
+        }
+
+        .l2 {
+            left: 50%;
+        }
+
+        .l3 {
+            left: 75%;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            background: #000;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+            transition: 0.3s;
+            z-index: 100;
+        }
+
+        .nav-back:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 80px auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #ffcc00;
+            text-transform: uppercase;
+        }
+
+        .stats-box {
+            text-align: right;
+        }
+
+        .total-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .total-val {
+            font-size: 40px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px;
+            color: #666;
+            border-bottom: 1px solid #333;
+        }
+
+        td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #222;
+            color: #fff;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: #111;
+        }
+
+        .o-id {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        .o-date {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+            font-size: 10px;
+        }
+
+        .o-items div {
+            margin-bottom: 3px;
+        }
+
+
+        select {
+            background: #000;
+            color: #fff;
+            border: 1px solid #333;
+            padding: 5px;
+            font-family: 'JetBrains Mono';
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #ffcc00;
+        }
+
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            cursor: pointer;
+            margin-left: 10px;
+            padding: 5px 10px;
+        }
+
+        .refresh-btn:hover {
+            color: #fff;
+            border-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+        <div class="line-v l3"></div>
+    </div>
+    <a href="/account/profile.html" class="nav-back">
+        < PROFILE</a>
+
+            <div class="container">
+                <div class="header-row" style="display: flex; gap: 40px; align-items: center;">
+
+                    <div style="flex: 1;">
+                        <h1>System Dashboard</h1>
+                        <div style="font-size:12px; color:#666; margin-top:5px;">Global Transaction Monitor</div>
+
+                        <div style="margin-top: 40px;">
+                            <div class="total-label">Total Revenue</div>
+                            <div class="total-val" id="revenue">$0.00</div>
+                        </div>
+                    </div>
+
+                    <div style="width: 300px; height: 150px;">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                </div>
+
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>ORDER ID</th>
+                            <th>ITEMS</th>
+                            <th>TOTAL</th>
+                            <th>STATUS <button class="refresh-btn" onclick="loadAllOrders()">↻</button></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <script>
+
+                const API_URL = 'http://localhost:5182/api/orders';
+
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user || (user.role !== 'Admin' && user.role !== 'Manager')) {
+                    window.location.href = '/account/profile.html';
+                }
+
+
+                let myChart = null;
+
+                async function loadAllOrders() {
+                    try {
+                        const res = await fetch(`${API_URL}/all-orders`);
+                        const orders = await res.json();
+
+                        renderTable(orders);
+                        calculateStats(orders);
+                        renderChart(orders);
+
+                    } catch (e) { console.error(e); }
+                }
+
+
+
+
+                function renderChart(orders) {
+
+                    let pending = 0, shipped = 0, delivered = 0, canceled = 0;
+
+                    orders.forEach(o => {
+                        if (o.status === 0) pending++;
+                        if (o.status === 1) shipped++;
+                        if (o.status === 2) delivered++;
+                        if (o.status === 3) canceled++;
+                    });
+
+                    const ctx = document.getElementById('ordersChart');
+
+
+                    if (myChart) myChart.destroy();
+
+
+                    myChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Pending', 'Shipped', 'Delivered', 'Canceled'],
+                            datasets: [{
+                                data: [pending, shipped, delivered, canceled],
+                                backgroundColor: [
+                                    '#ffcc00',
+                                    '#00aaff',
+                                    '#0f0',
+                                    '#ff003c'
+                                ],
+                                borderWidth: 0,
+                                hoverOffset: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        color: '#fff',
+                                        font: { family: 'JetBrains Mono', size: 10 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                function renderTable(orders) {
+                    const tbody = document.getElementById('table-body');
+                    tbody.innerHTML = '';
+
+                    orders.forEach(order => {
+                        const tr = document.createElement('tr');
+                        const date = new Date(order.createdAt).toLocaleString();
+
+
+                        let itemsHtml = order.items.map(i =>
+                            `<div>${i.product ? i.product.name : 'Unknown'} <span style="color:#666">x${i.quantity}</span></div>`
+                        ).join('');
+
+
+                        const statusOptions = `
+                    <select onchange="changeStatus(${order.id}, this.value)">
+                        <option value="0" ${order.status === 0 ? 'selected' : ''}>Pending</option>
+                        <option value="1" ${order.status === 1 ? 'selected' : ''}>Shipped</option>
+                        <option value="2" ${order.status === 2 ? 'selected' : ''}>Delivered</option>
+                        <option value="3" ${order.status === 3 ? 'selected' : ''}>Canceled</option>
+                    </select>
+                `;
+
+                        tr.innerHTML = `
+                    <td>
+                        <div class="o-id">#${order.id}</div>
+                        <div class="o-date">${date}</div>
+                        <div class="o-date">User: ${order.userId.substring(0, 6)}...</div>
+                    </td>
+                    <td class="o-items">${itemsHtml}</td>
+                    <td style="font-weight:bold;">$${order.totalAmount}</td>
+                    <td>${statusOptions}</td>
+                `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                function calculateStats(orders) {
+
+                    const total = orders
+                        .filter(o => o.status !== 3)
+                        .reduce((sum, o) => sum + o.totalAmount, 0);
+
+                    document.getElementById('revenue').innerText = `$${total.toFixed(2)}`;
+                }
+
+                async function changeStatus(orderId, newStatus) {
+                    try {
+
+                        await fetch(`${API_URL}/update-status/${orderId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(parseInt(newStatus))
+                        });
+
+
+                        loadAllOrders();
+
+                    } catch (e) { alert("Update failed"); }
+                }
+
+                loadAllOrders();
+            </script>
+</body>
+
+</html>

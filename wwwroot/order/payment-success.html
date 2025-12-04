@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'JetBrains Mono';
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid #0f0;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 15px 30px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            display: none;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="status-icon" class="loader"></div>
+    <h1 id="status-text">VERIFYING TRANSACTION...</h1>
+
+    <div id="details" style="color: #fff; margin-bottom: 30px;"></div>
+
+    <button id="view-invoice-btn" style="display: none;">[ VIEW INVOICE ]</button>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+
+        async function confirmPayment() {
+            if (!orderId) {
+                showError("INVALID TOKEN");
+                return;
+            }
+
+            try {
+
+                const res = await fetch(`http://localhost:5182/api/payments/confirm/${orderId}`, {
+                    method: 'POST'
+                });
+
+                if (res.ok) {
+                    showSuccess();
+                } else {
+                    showError("CONFIRMATION FAILED");
+                }
+            } catch (e) {
+                showError("CONNECTION ERROR");
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('status-icon').className = '';
+            document.getElementById('status-icon').innerText = "✔";
+            document.getElementById('status-icon').style.fontSize = "50px";
+
+            document.getElementById('status-text').innerText = "PAYMENT ACCEPTED";
+            document.getElementById('details').innerText = `ORDER #${orderId} PROCESSED SUCCESSFULLY`;
+
+            // Redirect to invoice after 2 seconds
+            setTimeout(() => {
+                window.location.href = `/order/invoice.html?id=${orderId}`;
+            }, 2000);
+        }
+
+        function showError(msg) {
+            document.body.style.color = "red";
+            document.getElementById('status-icon').style.display = 'none';
+            document.getElementById('status-text').innerText = msg;
+            document.querySelector('button').style.borderColor = "red";
+            document.querySelector('button').style.color = "red";
+            document.querySelector('button').style.display = 'block';
+        }
+
+        confirmPayment();
+    </script>
+</body>
+
+</html>

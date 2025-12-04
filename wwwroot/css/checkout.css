@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+body,
+html {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'JetBrains Mono';
+    background: #0a0a0a;
+    color: #f0f0f0;
+    overflow: hidden;
+}
+
+.grid-lines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.line-v {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.l1 {
+    left: 33%;
+}
+
+.l2 {
+    left: 66%;
+}
+
+.nav-back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    text-decoration: none;
+    color: #fff;
+    background: #000;
+    border: 1px solid #fff;
+    padding: 10px 20px;
+    z-index: 100;
+}
+
+.form-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid #333;
+    padding: 40px;
+    z-index: 10;
+}
+
+h2 {
+    color: #fff;
+    margin-top: 0;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-size: 10px;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #333;
+    color: #fff;
+    font-family: 'JetBrains Mono';
+    padding: 10px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+input:focus {
+    border-color: #fff;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background: #fff;
+    color: #000;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background: #ccc;
+}
+
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.input-group.half-width {
+    flex: 1;
+}

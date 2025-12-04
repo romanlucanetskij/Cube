@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Log | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            background: #0a0a0a;
+            color: #ccc;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: red;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .report-card {
+            border: 1px solid #333;
+            background: #111;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .r-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .r-target {
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .r-reason {
+            color: #ffcc00;
+            font-size: 14px;
+        }
+
+        .btn-resolve {
+            background: #0f0;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .type-badge {
+            padding: 2px 5px;
+            font-size: 10px;
+            background: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/account/profile.html" class="nav-back">
+        < PROFILE</a>
+
+            <div class="container">
+                <h1>INCIDENT REPORTS</h1>
+                <div id="reports-list">LOADING...</div>
+            </div>
+
+            <script>
+                const API_URL = 'http://localhost:5182/api/reports';
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user || user.role !== 'Admin') window.location.href = '/account/profile.html';
+
+                async function loadReports() {
+                    try {
+                        const res = await fetch(API_URL);
+                        const reports = await res.json();
+
+                        const list = document.getElementById('reports-list');
+                        list.innerHTML = '';
+
+                        if (reports.length === 0) {
+                            list.innerHTML = "NO INCIDENTS REPORTED.";
+                            return;
+                        }
+
+                        reports.forEach(r => {
+                            const div = document.createElement('div');
+                            div.className = 'report-card';
+
+                            const date = new Date(r.createdAt).toLocaleString();
+
+                            div.innerHTML = `
+                        <div class="r-header">
+                            <span>FROM: ${r.reporterName}</span>
+                            <span>${date}</span>
+                        </div>
+                        <div class="r-target">
+                            <span class="type-badge">${r.targetType}</span>
+                            TARGET: ${r.targetIdentifier}
+                        </div>
+                        <div class="r-reason">"${r.reason}"</div>
+                        <button class="btn-resolve" onclick="resolveReport(${r.id})">[ MARK RESOLVED ]</button>
+                    `;
+                            list.appendChild(div);
+                        });
+
+                    } catch (e) { console.error(e); }
+                }
+
+                async function resolveReport(id) {
+                    if (!confirm("CONFIRM RESOLUTION?")) return;
+                    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                    loadReports();
+                }
+
+                loadReports();
+            </script>
+</body>
+
+</html>

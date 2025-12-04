@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | DRIP CUBE</title>
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+
+<body>
+
+    <div class="grid-lines">
+        <div class="line-v l1"></div>
+        <div class="line-v l2"></div>
+        <div class="line-v l3"></div>
+        <div class="line-v l4"></div>
+    </div>
+
+    <a href="/index.html" class="nav-back">
+        < HOME</a>
+
+            <div class="center-box">
+
+                <div id="login-form">
+                    <h2>System Login</h2>
+                    <div class="input-group"><label for="l-email">EMAIL / LOGIN</label><input type="text" id="l-email">
+                    </div>
+                    <div class="input-group"><label for="l-pass">PASSWORD</label><input type="password" id="l-pass">
+                    </div>
+                    <button onclick="login()">Connect</button>
+                    <div id="login-error" class="error-text"></div>
+                    <div class="switch-link" onclick="toggleForms()">Нет аккаунта? Регистрация</div>
+                </div>
+
+                <div id="register-form" class="hidden">
+                    <h2>New User</h2>
+                    <div class="input-group"><label for="r-name">FIRST NAME</label><input type="text" id="r-name">
+                    </div>
+                    <div class="input-group"><label for="r-email">EMAIL</label><input type="email" id="r-email">
+                    </div>
+                    <div class="input-group"><label for="r-pass">PASSWORD</label><input type="password" id="r-pass">
+                    </div>
+                    <button onclick="register()">Create ID</button>
+                    <div id="reg-error" class="error-text"></div>
+                    <div class="switch-link" onclick="toggleForms()">Есть аккаунт? Войти</div>
+                </div>
+
+                <div id="activation-form" class="hidden">
+                    <h2 style="color: #0f0;">Activation Required</h2>
+                    <p style="font-size: 10px; color: #666; margin-bottom: 20px;">WELCOME, PERSONNEL. COMPLETE YOUR
+                        PROFILE TO BEGIN.</p>
+
+                    <div class="input-group"><label for="act-fname">First Name</label><input type="text" id="act-fname">
+                    </div>
+                    <div class="input-group"><label for="act-lname">Last Name</label><input type="text" id="act-lname">
+                    </div>
+                    <div class="input-group"><label for="act-phone">Phone Number</label><input type="text"
+                            id="act-phone"></div>
+                    <div class="input-group"><label for="act-email">Email</label><input type="email" id="act-email">
+                    </div>
+
+                    <button onclick="activateManager()" style="background: #0f0; color: #000;">[ ACTIVATE ACCOUNT
+                        ]</button>
+                    <div id="act-error" class="error-text"></div>
+                </div>
+
+                <div id="profile-view" class="hidden">
+                    <h2>Identity</h2>
+                    <div id="role-display" class="role-badge">USER</div>
+
+                    <div class="profile-info">
+                        <div class="data-row"><span class="lbl">NAME:</span> <span class="val" id="p-name">-</span>
+                        </div>
+
+                        <div class="data-row" id="row-simple-id"><span class="lbl">ID:</span> <span class="val"
+                                id="p-id">-</span></div>
+
+                        <div id="staff-ids" class="hidden">
+                            <div class="data-row" onclick="copyToClipboard('p-pid-full')" title="Click to Copy">
+                                <span class="lbl">PID:</span>
+                                <span class="val secret-box">AI23<span class="blur-part"
+                                        id="p-pid-blur">...</span></span>
+                                <input type="hidden" id="p-pid-full">
+                            </div>
+                            <div class="data-row" onclick="copyToClipboard('p-cid-full')" title="Click to Copy">
+                                <span class="lbl">CHAT:</span>
+                                <span class="val secret-box">AC<span class="blur-part" id="p-cid-blur">...</span></span>
+                                <input type="hidden" id="p-cid-full">
+                            </div>
+                        </div>
+
+                        <div class="data-row"><span class="lbl">STATUS:</span> <span
+                                class="val status-active">ACTIVE</span></div>
+                    </div>
+
+                    <button id="admin-btn" class="hidden" onclick="window.location.href='/shop/create-product.html'"
+                        style="border: 1px solid #ff003c; color: #ff003c; margin-top: 10px;">[+] ACCESS
+                        DATABASE</button>
+
+                    <button id="terminal-btn" class="hidden"
+                        onclick="window.location.href='/admin/manager-terminal.html'"
+                        style="border: 1px solid #0f0; color: #0f0; margin-top: 10px;">
+                        [ >_ ] OPEN TERMINAL
+                    </button>
+
+                    <button id="dashboard-btn" class="hidden"
+                        onclick="window.location.href='/admin/admin-dashboard.html'"
+                        style="border: 1px solid #ffcc00; color: #ffcc00; margin-top: 10px;">
+                        [ % ] SYSTEM DASHBOARD
+                    </button>
+
+                    <button id="hire-btn" class="hidden" onclick="window.location.href='/admin/create-manager.html'"
+                        style="border: 1px solid #0f0; color: #0f0; margin-top: 10px;">[+] HIRE PERSONNEL</button>
+
+                    <button id="chat-control-btn" class="hidden"
+                        onclick="window.location.href='/admin/admin-chats.html'"
+                        style="border: 1px solid #00aaff; color: #00aaff; margin-top: 10px;">
+                        [ COMMS CONTROL ]
+                    </button>
+                    <button id="reports-btn" class="hidden" onclick="window.location.href='/admin/admin-reports.html'"
+                        style="border: 1px solid #ff003c; color: #ff003c; margin-top: 10px;">
+                        [ ! ] VIEW INCIDENTS
+                    </button>
+
+                    <button id="staff-btn" class="hidden" onclick="window.location.href='/admin/admin-staff.html'"
+                        style="border: 1px solid #666; color: #aaa; margin-top: 10px;">
+                        [ DATABASE: STAFF ]
+                    </button>
+
+                    <button id="support-btn" class="hidden" onclick="window.location.href='/support.html'"
+                        style="border: 1px solid #fff; margin-top: 10px;">
+                        [ ? ] CONTACT SUPPORT
+                    </button>
+
+                    <button id="history-btn" class="hidden" onclick="window.location.href='/order/orders.html'"
+                        style="border: 1px solid #aaa; color: #aaa; margin-top: 10px;">
+                        [ = ] ORDER HISTORY
+                    </button>
+
+                    <button onclick="logout()"
+                        style="background: transparent; color: #fff; border: 1px solid #fff; margin-top: 10px;">Disconnect</button>
+                </div>
+
+                </button>
+            </div>
+
+            <script>
+                const API_URL = 'http://localhost:5182/api/auth';
+                let pendingManagerId = null;
+
+
+                const views = {
+                    login: document.getElementById('login-form'),
+                    register: document.getElementById('register-form'),
+                    activation: document.getElementById('activation-form'),
+                    profile: document.getElementById('profile-view')
+                };
+
+                checkAuth();
+
+                function checkAuth() {
+                    const user = JSON.parse(localStorage.getItem('drip_user'));
+                    hideAll();
+
+                    if (user) {
+
+                        if (user.status === 'NotActive') {
+                            pendingManagerId = user.id;
+                            views.activation.classList.remove('hidden');
+                        } else {
+                            showProfile(user);
+                        }
+                    } else {
+                        views.login.classList.remove('hidden');
+                    }
+                }
+
+                function hideAll() {
+                    Object.values(views).forEach(v => v.classList.add('hidden'));
+                }
+
+                function toggleForms() {
+                    views.login.classList.toggle('hidden');
+                    views.register.classList.toggle('hidden');
+                }
+
+
+                async function login() {
+                    const email = document.getElementById('l-email').value;
+                    const password = document.getElementById('l-pass').value;
+
+                    try {
+                        const response = await fetch(`${API_URL}/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data || 'Ошибка');
+
+                        localStorage.setItem('drip_user', JSON.stringify(data));
+                        location.reload();
+                    } catch (e) {
+                        document.getElementById('login-error').innerText = "ERROR: " + e.message;
+                        document.getElementById('login-error').style.display = 'block';
+                    }
+                }
+
+
+                async function register() {
+                    const firstName = document.getElementById('r-name').value;
+                    const email = document.getElementById('r-email').value;
+                    const password = document.getElementById('r-pass').value;
+
+                    try {
+                        const response = await fetch(`${API_URL}/register`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ firstName, lastName: "", email, password })
+                        });
+
+                        if (!response.ok) throw new Error('Ошибка');
+                        alert("Success. Login now.");
+                        toggleForms();
+                    } catch (e) {
+                        document.getElementById('reg-error').innerText = "ERROR: " + e.message;
+                        document.getElementById('reg-error').style.display = 'block';
+                    }
+                }
+
+
+                async function activateManager() {
+                    const dto = {
+                        managerId: pendingManagerId,
+                        firstName: document.getElementById('act-fname').value,
+                        lastName: document.getElementById('act-lname').value,
+                        phone: document.getElementById('act-phone').value,
+                        email: document.getElementById('act-email').value
+                    };
+
+                    try {
+                        const response = await fetch(`${API_URL}/activate-manager`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(dto)
+                        });
+
+                        const data = await response.json();
+                        if (!response.ok) throw new Error('Ошибка активации');
+
+
+                        localStorage.setItem('drip_user', JSON.stringify(data));
+                        location.reload();
+                    } catch (e) {
+                        document.getElementById('act-error').innerText = "ERROR: " + e.message;
+                        document.getElementById('act-error').style.display = 'block';
+                    }
+                }
+
+                function logout() {
+                    localStorage.removeItem('drip_user');
+                    location.reload();
+                }
+
+
+                function showProfile(user) {
+                    views.profile.classList.remove('hidden');
+                    document.getElementById('p-name').innerText = user.name;
+
+                    const simpleIdRow = document.getElementById('row-simple-id');
+                    const staffIdsBlock = document.getElementById('staff-ids');
+                    const roleBadge = document.getElementById('role-display');
+                    const adminBtn = document.getElementById('admin-btn');
+                    const hireBtn = document.getElementById('hire-btn');
+                    const chatCtrlBtn = document.getElementById('chat-control-btn');
+
+                    roleBadge.innerText = user.role.toUpperCase();
+                    roleBadge.className = 'role-badge';
+
+                    if (user.role === 'Admin' || user.role === 'Manager') {
+
+                        if (user.role === 'Admin') roleBadge.classList.add('admin-role');
+
+                        simpleIdRow.classList.add('hidden');
+                        staffIdsBlock.classList.remove('hidden');
+                        adminBtn.classList.remove('hidden');
+
+                        hireBtn.classList.toggle('hidden', user.role !== 'Admin');
+
+
+                        const pid = user.personalId || "AI23????";
+                        document.getElementById('p-pid-blur').innerText = pid.substring(4);
+                        document.getElementById('p-pid-full').value = pid;
+
+
+                        const cid = user.chatId || "AC????";
+                        document.getElementById('p-cid-blur').innerText = cid.substring(2);
+                        document.getElementById('p-cid-full').value = cid;
+
+                    } else {
+
+                        staffIdsBlock.classList.add('hidden');
+                        simpleIdRow.classList.remove('hidden');
+                        adminBtn.classList.add('hidden');
+                        hireBtn.classList.add('hidden');
+
+                        const idStr = String(user.id);
+                        document.getElementById('p-id').innerText = idStr.length > 8 ? idStr.substring(0, 8) + '...' : idStr;
+                    }
+
+
+
+                    const supportBtn = document.getElementById('support-btn');
+
+                    if (user.role === 'User') {
+                        supportBtn.classList.remove('hidden');
+                    } else {
+                        supportBtn.classList.add('hidden');
+                    }
+
+
+                    const terminalBtn = document.getElementById('terminal-btn');
+
+                    if (user.role === 'Manager') {
+                        terminalBtn.classList.remove('hidden');
+                    } else {
+                        terminalBtn.classList.add('hidden');
+                    }
+
+
+                    const historyBtn = document.getElementById('history-btn');
+
+                    if (user.role === 'User') {
+                        historyBtn.classList.remove('hidden');
+                    } else {
+                        historyBtn.classList.add('hidden');
+                    }
+
+
+                    const dashboardBtn = document.getElementById('dashboard-btn');
+
+                    if (user.role === 'Admin' || user.role === 'Manager') {
+                        dashboardBtn.classList.remove('hidden');
+                    } else {
+                        dashboardBtn.classList.add('hidden');
+                    }
+
+                    const staffBtn = document.getElementById('staff-btn');
+
+                    if (user.role === 'Admin') {
+                        roleBadge.classList.add('admin-role');
+                        hireBtn.classList.remove('hidden');
+                        chatCtrlBtn.classList.remove('hidden');
+
+
+                        document.getElementById('reports-btn').classList.remove('hidden');
+                    } else {
+                        hireBtn.classList.add('hidden');
+                        chatCtrlBtn.classList.add('hidden');
+
+
+                        document.getElementById('reports-btn').classList.add('hidden');
+                    }
+                }
+
+
+                function copyToClipboard(elementId) {
+                    const text = document.getElementById(elementId).value;
+                    navigator.clipboard.writeText(text).then(() => {
+                        const displayEl = document.getElementById(elementId).parentElement.querySelector('.val');
+                        const originalColor = displayEl.style.color;
+                        displayEl.style.color = '#0f0';
+                        setTimeout(() => displayEl.style.color = originalColor, 500);
+                    });
+                }
+            </script>
+</body>
+
+</html>

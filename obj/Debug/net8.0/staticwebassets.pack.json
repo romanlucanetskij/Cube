@@ -1,0 +1,37 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\xyulo\\Desktop\\kurs\\wwwroot\\images\\1346f79b-b836-4c22-acb1-0a016f767092.jpg",
+      "PackagePath": "staticwebassets\\images\\1346f79b-b836-4c22-acb1-0a016f767092.jpg"
+    },
+    {
+      "Id": "C:\\Users\\xyulo\\Desktop\\kurs\\wwwroot\\images\\56222b20-758f-4a8b-aa65-36f5972374ce.jpg",
+      "PackagePath": "staticwebassets\\images\\56222b20-758f-4a8b-aa65-36f5972374ce.jpg"
+    },
+    {
+      "Id": "C:\\Users\\xyulo\\Desktop\\kurs\\wwwroot\\images\\f6048f53-cf95-420f-9545-3bf7ec35c806.png",
+      "PackagePath": "staticwebassets\\images\\f6048f53-cf95-420f-9545-3bf7ec35c806.png"
+    },
+    {
+      "Id": "C:\\Users\\xyulo\\Desktop\\kurs\\wwwroot\\images\\fc624a6d-cc4f-40bc-b05a-d017fcdd2ddd.png",
+      "PackagePath": "staticwebassets\\images\\fc624a6d-cc4f-40bc-b05a-d017fcdd2ddd.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.DripCube.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.DripCube.props",
+      "PackagePath": "build\\DripCube.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.DripCube.props",
+      "PackagePath": "buildMultiTargeting\\DripCube.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.DripCube.props",
+      "PackagePath": "buildTransitive\\DripCube.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

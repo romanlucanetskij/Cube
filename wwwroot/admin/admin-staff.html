@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personnel Database | DRIP CUBE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body,
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'JetBrains Mono';
+            background: #0a0a0a;
+            color: #ccc;
+        }
+
+        .nav-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: #fff;
+            border: 1px solid #fff;
+            padding: 10px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #ff003c;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        th {
+            text-align: left;
+            color: #666;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #222;
+            color: #fff;
+        }
+
+        .status-ok {
+            color: #0f0;
+        }
+
+        .status-dead {
+            color: #666;
+        }
+
+        .btn-fire {
+            background: transparent;
+            border: 1px solid #333;
+            color: #ff003c;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-family: 'JetBrains Mono';
+            transition: 0.3s;
+        }
+
+        .btn-fire:hover {
+            background: #ff003c;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="/account/profile.html" class="nav-back">
+        < PROFILE</a>
+
+            <div class="container">
+                <h1>PERSONNEL DATABASE</h1>
+                <div style="font-size:12px; color:#666;">AUTHORIZED ACCESS ONLY</div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>LOGIN</th>
+                            <th>NAME</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-list">
+                    </tbody>
+                </table>
+            </div>
+
+            <script>
+                const API_URL = 'http://localhost:5182/api/auth';
+
+
+                const user = JSON.parse(localStorage.getItem('drip_user'));
+                if (!user || user.role !== 'Admin') window.location.href = '/account/profile.html';
+
+                async function loadStaff() {
+                    try {
+                        const res = await fetch(`${API_URL}/managers`);
+                        const staff = await res.json();
+
+                        const tbody = document.getElementById('staff-list');
+                        tbody.innerHTML = '';
+
+                        staff.forEach(s => {
+                            const tr = document.createElement('tr');
+                            const statusHtml = s.isActive
+                                ? '<span class="status-ok">ACTIVE</span>'
+                                : '<span class="status-dead">PENDING</span>';
+
+                            tr.innerHTML = `
+                        <td>${s.personalId || "---"}</td>
+                        <td>${s.login}</td>
+                        <td>${s.firstName} ${s.lastName}</td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <button class="btn-fire" onclick="fireEmployee(${s.id}, '${s.login}')">
+                                [ TERMINATE ]
+                            </button>
+                        </td>
+                    `;
+                            tbody.appendChild(tr);
+                        });
+
+                    } catch (e) { console.error(e); }
+                }
+
+                async function fireEmployee(id, login) {
+                    if (!confirm(`WARNING: TERMINATE CONTRACT WITH ${login}?`)) return;
+
+                    try {
+                        const res = await fetch(`${API_URL}/user/${id}`, { method: 'DELETE' });
+                        if (res.ok) {
+                            alert("EMPLOYEE REMOVED.");
+                            loadStaff();
+                        } else {
+                            alert("ERROR.");
+                        }
+                    } catch (e) { alert("CONNECTION ERROR"); }
+                }
+
+                loadStaff();
+            </script>
+</body>
+
+</html>
